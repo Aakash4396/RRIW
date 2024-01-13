@@ -1,0 +1,3 @@
+Log file opened.
+Initialize() succesfull.
+Log file closed.
