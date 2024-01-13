@@ -4,9 +4,9 @@
 #define COLOR_H
 
 #include <iostream>
-#include "vec3.h"
+#include "gVec3.h"
 
-using color = vec3<float>;
+using color = vec3;
 
 void write_color(unsigned char* image, int col, int row, int width, color pxl) {
     image[(col * width + row) * 4 + 0] = static_cast<unsigned char>(255.999 * pxl.x());

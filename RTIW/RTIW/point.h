@@ -1,8 +1,7 @@
 #pragma once
 #ifndef POINT_H
 #define POINT_H
-#include <iostream>
-#include "vec3.h"
+#include "gVec3.h"
 
-using point = vec3<float>;
+using point = vec3;
 #endif // !POINT_H

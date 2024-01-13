@@ -24,7 +24,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="color.h" />
+    <ClInclude Include="gVec3.h" />
     <ClInclude Include="point.h" />
+    <ClInclude Include="ray.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="vec3.h" />
   </ItemGroup>
