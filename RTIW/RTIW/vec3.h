@@ -10,8 +10,10 @@ class vec3 {
 private:
     T e[3];
 public:
+    vec3();
     vec3(T e0, T e1, T e2);
-    
+    vec3(const vec3& v);
+
     T x() const;
     T y() const;
     T z() const;
@@ -37,10 +39,24 @@ public:
 
 
 template <typename T>
+vec3<T>::vec3() {
+    e[0] = 0;
+    e[1] = 0;
+    e[2] = 0;
+}
+
+template <typename T>
 vec3<T>::vec3(T e0, T e1, T e2) {
     e[0] = e0;
     e[1] = e1;
     e[2] = e2;
+}
+
+template <typename T>
+vec3<T>::vec3(const vec3<T>& v) {
+    e[0] = v.x();
+    e[1] = v.y();
+    e[2] = v.z();
 }
 
 template <typename T>
@@ -141,18 +157,18 @@ vec3<T> operator/(const vec3<T>& u, const vec3<T>& v) {
     return vec3<T>(u.x() / v.x(), u.y() / v.y(), u.z() / v.z());
 }
 
-template <typename T>
-vec3<T> operator*(T t, const vec3<T>& v) {
+template <typename T, typename U>
+vec3<T> operator*(U t, const vec3<T>& v) {
     return vec3<T>(t * v.x(), t * v.y(), t * v.z());
 }
 
-template <typename T>
-vec3<T> operator*(const vec3<T>& v, const T t) {
+template <typename T, typename U>
+vec3<T> operator*(const vec3<T>& v, const U t) {
     return t * v;
 }
 
-template <typename T>
-vec3<T> operator/(const vec3<T>& v, const T t) {
+template <typename T, typename U>
+vec3<T> operator/(const vec3<T>& v, const U t) {
     return (1 / t) * v;
 }
 
