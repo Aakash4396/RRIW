@@ -1,5 +1,5 @@
 #include <iostream>
-
+#include "FileWriterUtility.h"
 #include "vec3.h"
 #include "point.h"
 #include "color.h"
@@ -11,8 +11,21 @@ auto aspect_ratio = 16.0 / 9.0;
 int width = 800;
 int height = 1;
 
-color ray_color(const Ray& r) {
 
+bool hit_sphere(const point& center, double radius, const Ray& r) {
+    vec3 oc = r.origin() - center;
+    auto a = dot(r.direction(), r.direction());
+    auto b = 2.0 * dot(oc, r.direction());
+    auto c = dot(oc, oc) - radius * radius;
+    auto discriminant = b * b - 4 * a * c;
+    return (discriminant >= 0);
+}
+
+
+color ray_color(const Ray& r) {
+    if (hit_sphere(vec3(0.0f, 0.0f, -1.0f), 0.5f, r)) {
+        return vec3(1.0f, 0.0f, 0.0f);
+    }
     vec3 unit_direction = unit_vector(r.direction());
     auto a = 0.5f * (unit_direction.y() + 1.0f);
     return (1.0f - a) * color(1.0f, 1.0f, 1.0f) + a * color(0.5f, 0.7f, 1.0f);
@@ -23,8 +36,8 @@ void createImage(unsigned char* image) {
     vec3 camera_center = point(0.0f, 0.0f, 0.0f);
 
     auto focal_length = 1.0f;
-    auto viewport_height = 2.0f;
-    auto viewport_width = viewport_height * (static_cast<float>(width/height));
+    float viewport_height = 2.0f;
+    float viewport_width = viewport_height * ((float)width/ (float)height);
 
     auto viewport_u = vec3(viewport_width, 0.0f, 0.0f);
     auto viewport_v = vec3(0.0f, -viewport_height, 0.0f);
@@ -33,6 +46,7 @@ void createImage(unsigned char* image) {
     auto pixel_delta_v = viewport_v / height;
 
     auto viewport_upper_left = camera_center - vec3(0.0f, 0.0f, focal_length) - viewport_u / 2.0f - viewport_v / 2.0f;
+
     auto pixel00_loc = viewport_upper_left + (0.5f) * (pixel_delta_u + pixel_delta_v);
 
     //fout << "P3\n" << width << " " << height << "\n255\n";
@@ -44,6 +58,7 @@ void createImage(unsigned char* image) {
             auto ray_direction = pixel_center - camera_center;
             Ray r(camera_center, ray_direction);
             color pixel_color = ray_color(r);
+            //fout << int(255.99 * pixel_color.x()) << " " << int(255.99 * pixel_color.y()) << " " << int(255.99 * pixel_color.z()) << fflush;
             write_color(image, j, i, width, pixel_color);
         }
     }
@@ -71,7 +86,7 @@ int main() {
         delete[] imageData;
         imageData = nullptr;
     }
-
+    fpclose;
     return 0;
 }
 

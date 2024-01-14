@@ -3,7 +3,7 @@
 
 std::ofstream fout("Logfile.txt");
 
-#define fp(a) fout << #a " = " << a
+#define fp(a) fout << #a " = " << a << fflush
 #define fpclose fout.close()
 
 typedef void(*fendlManipulatorFunc)(std::ofstream&, int);
