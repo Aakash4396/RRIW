@@ -29,8 +29,8 @@ public:
     vec3<T>& operator/=(const vec3<T>&);
     vec3<T>& operator*=(const T t);
     vec3<T>& operator/=(const T t);
-    template <typename U>
-    friend std::ostream& operator<<(std::ostream&, const vec3<U>&);
+    template <typename U, class _CharT, class _Traits>
+    friend std::basic_ostream<_CharT, _Traits>& operator<<(std::basic_ostream<_CharT, _Traits>&, const vec3<U>&);
     T length() const;
     T length_squared() const;
 };
@@ -169,7 +169,7 @@ vec3<T> operator*(const vec3<T>& v, const U t) {
 
 template <typename T, typename U>
 vec3<T> operator/(const vec3<T>& v, const U t) {
-    return (1 / t) * v;
+    return ((T)1 / t) * v;
 }
 
 template <typename T>
@@ -201,8 +201,7 @@ T vec3<T>::length_squared() const {
     return x() * x() + y() * y() + z() * z();
 }
 
-
-template <typename T>
-std::ostream& operator<<(std::ostream& out, const vec3<T>& v) {
+template <typename T, class _CharT, class _Traits>
+std::basic_ostream<_CharT, _Traits>& operator<<(std::basic_ostream<_CharT, _Traits>& out, const vec3<T>& v) {
     return out << v.x() << ' ' << v.y() << ' ' << v.z();
 }

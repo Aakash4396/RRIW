@@ -24,6 +24,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="color.h" />
+    <ClInclude Include="FileWriterUtility.h" />
     <ClInclude Include="gVec3.h" />
     <ClInclude Include="point.h" />
     <ClInclude Include="ray.h" />

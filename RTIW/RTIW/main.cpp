@@ -1,12 +1,14 @@
 #include <iostream>
+
 #include "vec3.h"
 #include "point.h"
 #include "color.h"
 #include "ray.h"
 #include "Renderer.h"
 
+
 auto aspect_ratio = 16.0 / 9.0;
-int width = 1260;
+int width = 800;
 int height = 1;
 
 color ray_color(const Ray& r) {
@@ -16,7 +18,7 @@ color ray_color(const Ray& r) {
     return (1.0f - a) * color(1.0f, 1.0f, 1.0f) + a * color(0.5f, 0.7f, 1.0f);
 }
 
-void createImage(GLubyte* image) {
+void createImage(unsigned char* image) {
 
     vec3 camera_center = point(0.0f, 0.0f, 0.0f);
 
@@ -30,10 +32,11 @@ void createImage(GLubyte* image) {
     auto pixel_delta_u = viewport_u / width;
     auto pixel_delta_v = viewport_v / height;
 
-    auto viewport_upper_left = camera_center - vec3(0.0, 0.0, focal_length) - viewport_u / 2 - viewport_v / 2;
+    auto viewport_upper_left = camera_center - vec3(0.0f, 0.0f, focal_length) - viewport_u / 2.0f - viewport_v / 2.0f;
     auto pixel00_loc = viewport_upper_left + (0.5f) * (pixel_delta_u + pixel_delta_v);
 
-
+    //fout << "P3\n" << width << " " << height << "\n255\n";
+    
     for (int j = 0; j < height; ++j) {
         std::clog << "\rScanlines remaining: " << (height - j) << ' ' << std::flush;
         for (int i = 0; i < width; ++i) {
@@ -52,13 +55,12 @@ int main() {
     height = static_cast<int>(width / aspect_ratio);
     height = (height < 1) ? 1 : height;
 
-    GLubyte* imageData = new GLubyte[width*height*4];
+    unsigned char* imageData = new unsigned char[width*height*4];
     Renderer rdr;
 
-    bool retVal = rdr.createWindow(L"RTIW", width, height);
-
-    
     createImage(imageData);
+
+    bool retVal = rdr.createWindow(L"RTIW", width, height);
     rdr.drawImage(imageData);
 
     if (retVal) {
@@ -69,6 +71,7 @@ int main() {
         delete[] imageData;
         imageData = nullptr;
     }
+
     return 0;
 }
 

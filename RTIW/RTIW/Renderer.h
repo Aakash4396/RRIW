@@ -24,7 +24,7 @@ public:
     bool createWindow(LPCWSTR title, int width, int height);
     void Render();  // Add your rendering logic here
     void RunMessageLoop();
-    void drawImage(GLubyte*);
+    void drawImage(unsigned char*);
 
 private:
     static LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);

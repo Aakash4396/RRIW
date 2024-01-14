@@ -175,7 +175,7 @@ void Renderer::uninitializeOpenGL() {
 }
 
 
-void Renderer::drawImage(GLubyte* image) {
+void Renderer::drawImage(unsigned char* image) {
 
     glGenTextures(1, &textureID);	// gen texture and get id in tecture_checkerboard variable
     glBindTexture(GL_TEXTURE_2D, textureID);
