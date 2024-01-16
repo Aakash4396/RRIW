@@ -398,4 +398,5 @@ FodyWeavers.xsd
 *.sln.iml
 
 # my custom files
-*.bat
+*.exe
+*.obj
