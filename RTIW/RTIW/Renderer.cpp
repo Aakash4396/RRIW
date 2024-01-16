@@ -44,7 +44,7 @@ bool Renderer::createWindow(LPCWSTR title, int width, int height) {
         return false;
     }
 
-    hWnd_ = CreateWindowEx(
+    hWnd_ = CreateWindowExW(
         WS_EX_APPWINDOW,
         L"RendererClass",
         title_,
