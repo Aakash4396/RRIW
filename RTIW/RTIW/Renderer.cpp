@@ -3,12 +3,15 @@
 #include "Renderer.h"
 
 GLuint textureID;
+Renderer* Renderer::currentInstance_ = nullptr;
 
 Renderer::Renderer() {
     hInstance_ = GetModuleHandle(nullptr);
     title_ = L"My Graphics Window";
     width_ = 512;
     height_ = 512;
+    fullscreen_ = false;
+    currentInstance_ = this;
 }
 
 Renderer::~Renderer() {
@@ -61,26 +64,6 @@ bool Renderer::createWindow(LPCWSTR title, int width, int height) {
     return hWnd_ != nullptr;
 }
 
-void Renderer::Render() {
-
-    // Implement your rendering logic here
-    glClear(GL_COLOR_BUFFER_BIT);
-
-    glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, textureID);
-
-    glBegin(GL_QUADS);
-    glTexCoord2f(0.0f, 1.0f); glVertex2f(-1.0f, -1.0f);
-    glTexCoord2f(1.0f, 1.0f); glVertex2f(1.0f, -1.0f);
-    glTexCoord2f(1.0f, 0.0f); glVertex2f(1.0f, 1.0f);
-    glTexCoord2f(0.0f, 0.0f); glVertex2f(-1.0f, 1.0f);
-    glEnd();
-
-    glDisable(GL_TEXTURE_2D);
-
-    SwapBuffers(hdc_);
-}
-
 void Renderer::RunMessageLoop() {
     MSG msg;
     while (true) {
@@ -101,10 +84,58 @@ LRESULT CALLBACK Renderer::WindowProc(HWND hWnd, UINT message, WPARAM wParam, LP
     case WM_DESTROY:
         PostQuitMessage(0);
         break;
+    case WM_CHAR:
+        switch (wParam) {
+        case 'F':
+        case 'f':
+            // 'F' or 'f' key pressed
+            currentInstance_->ToggleFullscreen();
+            break;
+        }
+        break;
+    case WM_KEYDOWN:
+        switch (wParam) {
+        case 27:
+            DestroyWindow(currentInstance_->hWnd_);
+            break;
+        }
+        break;
+    case WM_SIZE:
+        currentInstance_->resize(LOWORD(lParam), HIWORD(lParam));
+        break;
     default:
         return DefWindowProc(hWnd, message, wParam, lParam);
     }
     return 0;
+}
+
+void Renderer::ToggleFullscreen() {
+    // variable declarations
+    static DWORD dwStyle;
+    static WINDOWPLACEMENT wp;
+    MONITORINFO mi;
+
+    // code
+    wp.length = sizeof(WINDOWPLACEMENT);
+    if (fullscreen_ == FALSE) {
+        dwStyle = GetWindowLong(hWnd_, GWL_STYLE);
+        if (dwStyle & WS_OVERLAPPEDWINDOW) {
+            mi.cbSize = sizeof(MONITORINFO);
+            if (GetWindowPlacement(hWnd_, &wp) && GetMonitorInfo(MonitorFromWindow(hWnd_, MONITORINFOF_PRIMARY), &mi)) {
+                SetWindowLong(hWnd_, GWL_STYLE, dwStyle & ~WS_OVERLAPPEDWINDOW);
+                SetWindowPos(hWnd_, HWND_TOP, mi.rcMonitor.left, mi.rcMonitor.top, mi.rcMonitor.right - mi.rcMonitor.left, mi.rcMonitor.bottom - mi.rcMonitor.top, SWP_NOZORDER | SWP_FRAMECHANGED);
+            }
+            ShowCursor(FALSE);
+        }
+    }
+    else {
+        SetWindowLong(hWnd_, GWL_STYLE, dwStyle | WS_OVERLAPPEDWINDOW);
+        SetWindowPlacement(hWnd_, &wp);
+        SetWindowPos(hWnd_, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOOWNERZORDER | SWP_NOZORDER | SWP_FRAMECHANGED);
+        ShowCursor(TRUE);
+    }
+
+    fullscreen_ = !fullscreen_;
 }
 
 int Renderer::initializeOpenGL() {
@@ -154,24 +185,41 @@ int Renderer::initializeOpenGL() {
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+    glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
+    resize(width_, height_);
     return 0;
 }
 
-void Renderer::uninitializeOpenGL() {
-    if (wglGetCurrentContext() == hrc_) {
-        wglMakeCurrent(NULL, NULL);
-    }
+void Renderer::resize(int width, int height) {
+    // Code
+    if (height == 0)
+        height = 1;	// to avoid divide by zero in future call
 
-    if (hrc_) {
-        wglDeleteContext(hrc_);
-        hrc_ = NULL;
-    }
+    glViewport(0, 0, (GLsizei)width, (GLsizei)height);
+}
 
-    if (hdc_) {
-        ReleaseDC(hWnd_, hdc_);
-        hdc_ = NULL;
-    }
 
+void Renderer::Render() {
+
+    // Implement your rendering logic here
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, textureID);
+
+    glBegin(GL_QUADS);
+    glTexCoord2f(0.0f, 1.0f); glVertex2f(-1.0f, -1.0f);
+    glTexCoord2f(1.0f, 1.0f); glVertex2f(1.0f, -1.0f);
+    glTexCoord2f(1.0f, 0.0f); glVertex2f(1.0f, 1.0f);
+    glTexCoord2f(0.0f, 0.0f); glVertex2f(-1.0f, 1.0f);
+    glEnd();
+
+    glDisable(GL_TEXTURE_2D);
+    
+    SwapBuffers(hdc_);
 }
 
 
@@ -187,4 +235,22 @@ void Renderer::drawImage(unsigned char* image) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
     glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+
+
+void Renderer::uninitializeOpenGL() {
+    if (wglGetCurrentContext() == hrc_) {
+        wglMakeCurrent(NULL, NULL);
+    }
+
+    if (hrc_) {
+        wglDeleteContext(hrc_);
+        hrc_ = NULL;
+    }
+
+    if (hdc_) {
+        ReleaseDC(hWnd_, hdc_);
+        hdc_ = NULL;
+    }
 }

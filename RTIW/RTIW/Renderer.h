@@ -28,9 +28,10 @@ public:
 
 private:
     static LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+    void ToggleFullscreen();
     int initializeOpenGL();
     void uninitializeOpenGL();
-    void resize();
+    void resize(int, int);
     HINSTANCE hInstance_;
     HWND hWnd_;
     LPCWSTR title_;
@@ -38,6 +39,9 @@ private:
     int height_;
     HDC hdc_;
     HGLRC hrc_;
+    bool fullscreen_;
+
+    static Renderer* currentInstance_;
 };
 
 #endif // RENDERER_H
