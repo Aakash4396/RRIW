@@ -12,7 +12,11 @@
 class camera {
 
 public:
-    int samples_per_pixel = 10;
+
+    // public variables
+    int samples_per_pixel = 10; // Count of random samples for each pixel
+    int max_depth = 10;   // Maximum number of ray bounces into scene
+
     camera(int _width, int _height) : width(_width), height(_height) {
         image = new unsigned char[width*height*4];
     }
@@ -32,7 +36,7 @@ public:
                 color pixel_color(0.0f, 0.0f, 0.0f);
                 for (int sample = 0; sample < samples_per_pixel; ++sample) {
                     Ray r = get_ray(i, j);
-                    pixel_color += ray_color(r, world);
+                    pixel_color += ray_color(r, max_depth, world);
                 }
                 write_color(image, j, i, width, pixel_color, samples_per_pixel);
             }
@@ -92,10 +96,18 @@ private:
         return (px * pixel_delta_u) + (py * pixel_delta_v);
     }
 
-    color ray_color(const Ray& r, const hittable& world) {
+    color ray_color(const Ray& r, int depth, const hittable& world) {
         hit_record rec;
-        if (world.hit(r, interval(0, infinity), rec)) {
-            return 0.5f * (rec.normal + color(1, 1, 1));
+
+        // If we've exceeded the ray bounce limit, no more light is gathered.
+        if (depth <= 0)
+            return color(0, 0, 0);
+
+
+        if (world.hit(r, interval(0.001, infinity), rec)) {
+            vec3 direction = rec.normal + random_unit_vector();
+
+            return 0.5f * ray_color(Ray(rec.p, direction), depth-1, world);
         }
 
         vec3 unit_direction = unit_vector(r.direction());

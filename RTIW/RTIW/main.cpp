@@ -25,6 +25,7 @@ int main() {
     camera cam(width, height);
 
     cam.samples_per_pixel = 100;
+    cam.max_depth = 50;
 
     unsigned char* imageData = cam.createImage(world);
 

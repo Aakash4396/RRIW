@@ -33,6 +33,8 @@ public:
     friend std::basic_ostream<_CharT, _Traits>& operator<<(std::basic_ostream<_CharT, _Traits>&, const vec3<U>&);
     T length() const;
     T length_squared() const;
+    static vec3<T> random();
+    static vec3<T> random(T, T);
 };
 
 #endif // VEC3_H
@@ -205,3 +207,14 @@ template <typename T, class _CharT, class _Traits>
 std::basic_ostream<_CharT, _Traits>& operator<<(std::basic_ostream<_CharT, _Traits>& out, const vec3<T>& v) {
     return out << v.x() << ' ' << v.y() << ' ' << v.z();
 }
+
+template <typename T>
+vec3<T> vec3<T>::random() {
+    return vec3<T>(random_double(), random_double(), random_double());
+}
+
+template <typename T>
+vec3<T> vec3<T>::random(T min, T max) {
+    return vec3<T>(random_double(min, max), random_double(min, max), random_double(min, max));
+}
+
