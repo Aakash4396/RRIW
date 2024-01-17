@@ -4,7 +4,7 @@
 
 #include "vec3.h"
 
-#define vec3 vec3<float>
+#define vec3 vec3<double>
 
 #endif // !gVEC3_H
 

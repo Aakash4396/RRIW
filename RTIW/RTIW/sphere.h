@@ -8,9 +8,9 @@
 class sphere : public hittable {
 private:
     point center;
-    float radius;
+    double radius;
 public:
-    sphere(point _center, float _radius) : center(_center), radius(_radius) {}
+    sphere(point _center, double _radius) : center(_center), radius(_radius) {}
 
     bool hit(const Ray& r, interval ray_t, hit_record& rec) const override {
         vec3 oc = r.origin() - center;

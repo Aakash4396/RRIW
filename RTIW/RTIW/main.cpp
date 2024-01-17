@@ -24,10 +24,12 @@ int main() {
 
     camera cam(width, height);
 
+    cam.samples_per_pixel = 100;
+
+    unsigned char* imageData = cam.createImage(world);
+
     Renderer rdr;
     bool retVal = rdr.createWindow(L"RTIW", width, height);
-    
-    unsigned char* imageData = cam.createImage(world);
 
     if (retVal) {
         rdr.drawImage(imageData);

@@ -4,11 +4,11 @@
 
 class interval {
 public:
-    float imin, imax;
+    double imin, imax;
 
     interval() : imin(+infinity), imax(-infinity) {} // Default interval is empty
 
-    interval(float _min, float _max) : imin(_min), imax(_max) {}
+    interval(double _min, double _max) : imin(_min), imax(_max) {}
 
     bool contains(double x) const {
         return imin <= x && x <= imax;
@@ -16,6 +16,12 @@ public:
 
     bool surrounds(double x) const {
         return imin < x && x < imax;
+    }
+
+    double clamp(double x) const {
+        if (x < imin) return imin;
+        if (x > imax) return imax;
+        return x;
     }
 
     static const interval empty, universe;

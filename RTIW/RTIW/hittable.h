@@ -7,7 +7,7 @@
 struct hit_record {
     point p;
     vec3 normal;
-    float t;
+    double t;
     bool front_face;
 
     void set_face_normal(const Ray& r, const vec3& outward_normal) {

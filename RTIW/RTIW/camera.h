@@ -12,6 +12,7 @@
 class camera {
 
 public:
+    int samples_per_pixel = 10;
     camera(int _width, int _height) : width(_width), height(_height) {
         image = new unsigned char[width*height*4];
     }
@@ -23,17 +24,17 @@ public:
     unsigned char* createImage(const hittable& world) {
         initialize();
 
-        //fout << "P3\n" << width << " " << height << "\n255\n";
+        // fout << "P3\n" << width << " " << height << "\n255\n";
         
         for (int j = 0; j < height; ++j) {
             std::clog << "\rScanlines remaining: " << (height - j) << ' ' << std::flush;
             for (int i = 0; i < width; ++i) {
-                auto pixel_center = pixel00_loc + (i * pixel_delta_u) + (j * pixel_delta_v);
-                auto ray_direction = pixel_center - center;
-                Ray r(center, ray_direction);
-                color pixel_color = ray_color(r, world);
-                //fout << int(255.99 * pixel_color.x()) << " " << int(255.99 * pixel_color.y()) << " " << int(255.99 * pixel_color.z()) << fflush;
-                write_color(image, j, i, width, pixel_color);
+                color pixel_color(0.0f, 0.0f, 0.0f);
+                for (int sample = 0; sample < samples_per_pixel; ++sample) {
+                    Ray r = get_ray(i, j);
+                    pixel_color += ray_color(r, world);
+                }
+                write_color(image, j, i, width, pixel_color, samples_per_pixel);
             }
         }
         
@@ -56,8 +57,8 @@ private:
 
         center = point(0.0f, 0.0f, 0.0f);
         auto focal_length = 1.0f;
-        float viewport_height = 2.0f;
-        float viewport_width = viewport_height * ((float)width / (float)height);
+        double viewport_height = 2.0f;
+        double viewport_width = viewport_height * ((double)width / (double)height);
         
         // Calculate vectors across viewport horizontal and viewport downword directions
         auto viewport_u = vec3(viewport_width, 0.0f, 0.0f);
@@ -70,6 +71,25 @@ private:
         // location of upper left position
         auto viewport_upper_left = center - vec3(0.0f, 0.0f, focal_length) - viewport_u / 2.0f - viewport_v / 2.0f;
         pixel00_loc = viewport_upper_left + (0.5f) * (pixel_delta_u + pixel_delta_v);
+    }
+
+    Ray get_ray(int i, int j) const {
+        // Get a randomly sampled camera ray for the pixel at location i,j.
+
+        auto pixel_center = pixel00_loc + (i * pixel_delta_u) + (j * pixel_delta_v);
+        auto pixel_sample = pixel_center + pixel_sample_square();
+
+        auto ray_origin = center;
+        auto ray_direction = pixel_sample - ray_origin;
+
+        return Ray(ray_origin, ray_direction);
+    }
+
+    vec3 pixel_sample_square() const {
+        // Returns a random point in the square surrounding a pixel at the origin.
+        auto px = -0.5 + random_double();
+        auto py = -0.5 + random_double();
+        return (px * pixel_delta_u) + (py * pixel_delta_v);
     }
 
     color ray_color(const Ray& r, const hittable& world) {
