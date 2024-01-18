@@ -9,11 +9,26 @@
 
 class camera {
 
+private:
+    int width;
+    int height;
+    point center;
+    point pixel00_loc;
+    vec3 pixel_delta_u;
+    vec3 pixel_delta_v;
+    vec3   u, v, w;
+    unsigned char* image;
+
 public:
 
     // public variables
     int samples_per_pixel = 10; // Count of random samples for each pixel
     int max_depth = 10;   // Maximum number of ray bounces into scene
+
+    double vfov = 90;     // Vertical view angle (field of view)
+    point lookfrom = point(0.0f, 0.0f, -1.0f);  // Point camera is looking from
+    point lookat = point(0.0f, 0.0f, 0.0f);   // Point camera is looking at
+    vec3   vup = vec3(0.0f, 1.0f, 0.0f);     // Camera-relative "up" direction
 
     camera(int _width, int _height) : width(_width), height(_height) {
         image = new unsigned char[width*height*4];
@@ -45,33 +60,33 @@ public:
     }
 
 private:
-    int width;
-    int height;
-    point center;
-    point pixel00_loc;
-    vec3 pixel_delta_u;
-    vec3 pixel_delta_v;
-    unsigned char* image;
 
     void initialize() {
 
         // Camera
 
-        center = point(0.0f, 0.0f, 0.0f);
-        auto focal_length = 1.0f;
-        double viewport_height = 2.0f;
+        center = lookfrom;
+        auto focal_length = (lookfrom - lookat).length();;
+        auto theta = degrees_to_radians(vfov);
+        auto h = tan(theta / 2);
+        auto viewport_height = 2 * h * focal_length;
         double viewport_width = viewport_height * ((double)width / (double)height);
+
+        // Calculate the u,v,w unit basis vectors for the camera coordinate frame.
+        w = unit_vector(lookfrom - lookat);
+        u = unit_vector(cross(vup, w));
+        v = cross(w, u);
         
         // Calculate vectors across viewport horizontal and viewport downword directions
-        auto viewport_u = vec3(viewport_width, 0.0f, 0.0f);
-        auto viewport_v = vec3(0.0f, -viewport_height, 0.0f);
+        auto viewport_u = viewport_width * u;   // Vector across viewport horizontal edge
+        auto viewport_v = viewport_height * -v; // Vector down viewport vertical edge
         
         // calculate delta vectors across X and -Y direction
         pixel_delta_u = viewport_u / width;
         pixel_delta_v = viewport_v / height;
         
         // location of upper left position
-        auto viewport_upper_left = center - vec3(0.0f, 0.0f, focal_length) - viewport_u / 2.0f - viewport_v / 2.0f;
+        auto viewport_upper_left = center - (focal_length * w) - viewport_u / 2 - viewport_v / 2;
         pixel00_loc = viewport_upper_left + (0.5f) * (pixel_delta_u + pixel_delta_v);
     }
 

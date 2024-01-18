@@ -19,8 +19,7 @@ int main() {
     auto material_ground = make_shared<lambertian>(color(0.8, 0.8, 0.0));
     auto material_center = make_shared<lambertian>(color(0.1, 0.2, 0.5));
     auto material_left = make_shared<dielectric>(1.5);
-    auto material_right = make_shared<metal>(color(0.8, 0.6, 0.2), 1.0);
-
+    auto material_right = make_shared<metal>(color(0.8, 0.6, 0.2), 0.0);
 
     world.add(make_shared<sphere>(point(0.0, -100.5, -1.0), 100.0, material_ground));
     world.add(make_shared<sphere>(point(0.0, 0.0, -1.0), 0.5, material_center));
@@ -36,6 +35,12 @@ int main() {
 
     cam.samples_per_pixel = 100;
     cam.max_depth = 50;
+
+    cam.vfov = 90;
+    cam.lookfrom = point(-2, 2, 1);
+    cam.lookat = point(0, 0, -1);
+    cam.vup = vec3(0, 1, 0);
+
 
     unsigned char* imageData = cam.createImage(world);
 
