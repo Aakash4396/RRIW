@@ -40,6 +40,8 @@ inline double random_double(double min, double max) {
 #include "interval.h"
 #include "ray.h"
 #include "vec3.h"
+#include "color.h"
+#include "hittable.h"
 
 #endif // !RTIW_H
 
@@ -64,6 +66,10 @@ vec3 random_on_hemisphere(const vec3& normal) {
         return on_unit_sphere;
     else
         return -on_unit_sphere;
+}
+
+vec3 reflect(const vec3& v, const vec3& n) {
+    return v - 2 * dot(v, n) * n;
 }
 
 

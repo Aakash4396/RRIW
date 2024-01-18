@@ -4,9 +4,12 @@
 
 #include "ray.h"
 
+class material;
+
 struct hit_record {
     point p;
     vec3 normal;
+    shared_ptr<material> mat;
     double t;
     bool front_face;
 

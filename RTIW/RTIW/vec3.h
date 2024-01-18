@@ -33,6 +33,7 @@ public:
     friend std::basic_ostream<_CharT, _Traits>& operator<<(std::basic_ostream<_CharT, _Traits>&, const vec3<U>&);
     T length() const;
     T length_squared() const;
+    bool near_zero() const;
     static vec3<T> random();
     static vec3<T> random(T, T);
 };
@@ -196,6 +197,13 @@ vec3<T> unit_vector(vec3<T> v) {
 template <typename T>
 T vec3<T>::length() const {
     return sqrt(length_squared());
+}
+
+template <typename T>
+bool vec3<T>::near_zero() const {
+    // Return true if the vector is close to zero in all dimensions.
+    auto s = 1e-8;
+    return (fabs(e[0]) < s) && (fabs(e[1]) < s) && (fabs(e[2]) < s);
 }
 
 template <typename T>
