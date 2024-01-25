@@ -22,11 +22,16 @@ public:
     ~camera() {
     }
 
-    void createImage(unsigned char* image, hittable& world) {
+    void createImage(unsigned char* image, hittable_list* world) {
         initialize();
 
         unsigned char * d_image;
         gpuErrchk(cudaMalloc((void**)&d_image, width*height*4*sizeof(char)), "Failed to allocate memory to image.");
+
+        camera* d_cam;
+        gpuErrchk(cudaMalloc((void**)&d_cam, sizeof(camera)), "Failed to allocate memory to cam.");
+        gpuErrchk(cudaMemcpy(d_cam, this, sizeof(camera), cudaMemcpyHostToDevice), "Failed to copy camera data from host to device.");
+
 
         // Define thread block size (e.g., 16x16)
         dim3 blockDim = dim3(8, 8);
@@ -34,7 +39,7 @@ public:
         // Define grid size
         dim3 gridDim = dim3((width + blockDim.x - 1) / blockDim.x, (height + blockDim.y - 1) / blockDim.y);
 
-        CudaWrapper::cudaKernel(gridDim, blockDim, d_image, width, height, this, world, samples_per_pixel);
+        CudaWrapper::cudaKernel(gridDim, blockDim, d_image, width, height, d_cam, world, samples_per_pixel);
 
         gpuErrchk( cudaPeekAtLastError(), "Error while launching kernel.");
         gpuErrchk( cudaDeviceSynchronize(), "Device Synchronization.");
@@ -42,6 +47,7 @@ public:
         gpuErrchk(cudaMemcpy(image, d_image, width*height*4*sizeof(char), cudaMemcpyDeviceToHost), "Failed to get image data from device to host.");
 
         gpuErrchk(cudaFree(d_image), "Failed to free image data on device.");
+        gpuErrchk(cudaFree(d_cam), "Failed to free camera data on device.");
         
     }
 
@@ -86,9 +92,9 @@ public:
         return (px * pixel_delta_u) + (py * pixel_delta_v);
     }
 
-    __host__ __device__ color ray_color(const Ray& r, hittable& world) {
+    __host__ __device__ color ray_color(const Ray& r, hittable_list* world) {
         hit_record rec;
-        if (world.hit(r, interval(0, 10000000.0), rec)) {
+        if (world->hit(r, interval(0, 10000000.0), rec)) {
             return 0.5f * (rec.normal + color(1, 1, 1));
         }
 

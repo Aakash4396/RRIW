@@ -5,14 +5,15 @@
 #include "hittable.h"
 #include "vec3.h"
 
-class sphere : public hittable {
+class sphere {
 private:
     point center;
     double radius;
 public:
+    sphere() {}
     sphere(point _center, double _radius) : center(_center), radius(_radius) {}
 
-    __host__ __device__ bool hit(const Ray& r, interval ray_t, hit_record& rec) override {
+    __host__ __device__ bool hit(const Ray& r, interval ray_t, hit_record& rec) {
         vec3 oc = r.origin() - center;
         auto a = r.direction().length_squared();
         auto half_b = dot(oc, r.direction());

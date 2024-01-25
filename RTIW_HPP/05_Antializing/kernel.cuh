@@ -4,9 +4,9 @@
 #include "device_launch_parameters.h"
 class vec3;
 class camera;
-class hittable;
+class hittable_list;
 namespace CudaWrapper {
-    void cudaKernel(dim3, dim3, unsigned char*, int, int, camera*, hittable&, int);
+    void cudaKernel(dim3, dim3, unsigned char*, int, int, camera*, hittable_list*, int);
     void cudaMain(unsigned char*, int, int);
 }
 
