@@ -1,7 +1,7 @@
 #include <iostream>
 #include <fstream>
 
-std::ofstream fout("img5.ppm");
+std::ofstream fout("Logfile.txt");
 
 #define fp(a) fout << #a " = " << a << fflush
 #define fpclose fout.close()

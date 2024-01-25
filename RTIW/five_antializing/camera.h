@@ -21,7 +21,7 @@ public:
         image = nullptr;
     }
 
-    unsigned char* createImage(const hittable& world) {
+    unsigned char* createImage(hittable& world) {
         initialize();
 
         // fout << "P3\n" << width << " " << height << "\n255\n";
@@ -92,7 +92,7 @@ private:
         return (px * pixel_delta_u) + (py * pixel_delta_v);
     }
 
-    color ray_color(const Ray& r, const hittable& world) {
+    color ray_color(const Ray& r, hittable& world) {
         hit_record rec;
         if (world.hit(r, interval(0, infinity), rec)) {
             return 0.5f * (rec.normal + color(1, 1, 1));
