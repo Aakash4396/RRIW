@@ -8,19 +8,23 @@
 #include "camera.h"
 #include "sphere.h"
 
+// Setup kernel to initialize curandState for each thread
+__global__ void setupRandomStates(unsigned int seed) {
+    int tid_x = blockIdx.x * blockDim.x + threadIdx.x;
+    int tid_y = blockIdx.y * blockDim.y + threadIdx.y;
+    int tid = tid_y * gridDim.x * blockDim.x + tid_x;
+    curand_init(seed + tid, 0, 0, &threadRandomStates[tid]);
+}
 
 
 __global__ void createImage(unsigned char* image, int width, int height, camera* cam, hittable_list* world, int samples_per_pixel) {
     int j = blockIdx.y * blockDim.y + threadIdx.y;
     int i = blockIdx.x * blockDim.x + threadIdx.x;
 
-    curandState state;
-    curand_init(1234, i+j, 0, &state);
-
     if (j < height && i < width) {
         color pixel_color(0.0f, 0.0f, 0.0f);
         for (int sample = 0; sample < samples_per_pixel; ++sample) {
-            Ray r = cam->get_ray(i, j, &state);
+            Ray r = cam->get_ray(i, j);
             pixel_color += cam->ray_color(r, world);
         }
         write_color(image, j, i, width, pixel_color, samples_per_pixel);
@@ -45,6 +49,10 @@ void CudaWrapper::cudaMain(unsigned char* image, int width, int height) {
 
 
     gpuErrchk(cudaMemcpy(d_world, &h_world, sizeof(hittable_list), cudaMemcpyHostToDevice), "Failed to copy h_world data from host to device.");
+
+    unsigned int seed = static_cast<unsigned int>(std::time(0));
+    
+    setupRandomStates<<<GRIDDIM, BLOCKDIM>>>(seed);
 
     camera cam(width, height);
 

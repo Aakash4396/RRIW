@@ -14,8 +14,6 @@ class PStash {
  public:
   PStash() : quantity(0), next(0) {}
 
-  ~PStash();
-
   int add(T element);
   T operator[](int index) const;
   int count() const { return next; }
@@ -55,13 +53,11 @@ class PStash {
     }
     
     __host__ __device__ iterator& operator+=(int amount) {
-      //require(index+amount < p.next && index+amount >= 0,"Index out of bound");
       index += amount;
       return *this;
     }
     
     __host__ __device__ iterator& operator-=(int amount) {
-      //require(index-amount < p.next && index - amount >= 0,"Index out of bound");
       index -= amount;
       return *this;
     }
@@ -81,7 +77,6 @@ class PStash {
     }
     
     __host__ __device__ T operator->() {
-      //require(p.storage[index] != 0,"PStash::iterator::operator->returns 0");
       return current();
     }
 
@@ -112,22 +107,11 @@ int PStash<T,incr>::add(T element) {
 }
 
 
-template<class T, int incr>
-PStash<T, incr>::~PStash() {
-  for(int i = 0; i < next; i++) {
-    ///delete storage[i];
-    //storage[i] = 0;
-  }
-  //delete []storage;
-}
-
 template<class T,int incr>
 T PStash<T,incr>::operator[](int index) const {
-  //require(index >= 0,"negative index");
   if(index >= next) {
     return 0;
   }
-  //require(storage[index] != 0, "No element at this record");
   return storage[index];
 }
 

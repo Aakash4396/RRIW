@@ -6,7 +6,7 @@
 int main() {
 
     auto aspect_ratio = 16.0 / 9.0;
-    int width = 800;
+    int width = IMG_WIDTH;
     int height = static_cast<int>(width / aspect_ratio);
 
     unsigned char* imageData = new unsigned char[width*height*4];

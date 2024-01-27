@@ -34,7 +34,7 @@ public:
 
 
         // Define thread block size (e.g., 16x16)
-        dim3 blockDim = dim3(8, 8);
+        dim3 blockDim = dim3(16, 16);
 
         // Define grid size
         dim3 gridDim = dim3((width + blockDim.x - 1) / blockDim.x, (height + blockDim.y - 1) / blockDim.y);
@@ -73,11 +73,11 @@ public:
         pixel00_loc = viewport_upper_left + (0.5f) * (pixel_delta_u + pixel_delta_v);
     }
 
-    __device__ Ray get_ray(int i, int j, curandState* state) const {
+    __device__ Ray get_ray(int i, int j) const {
         // Get a randomly sampled camera ray for the pixel at location i,j.
 
         auto pixel_center = pixel00_loc + (i * pixel_delta_u) + (j * pixel_delta_v);
-        auto pixel_sample = pixel_center + pixel_sample_square(state);
+        auto pixel_sample = pixel_center + pixel_sample_square();
 
         auto ray_origin = center;
         auto ray_direction = pixel_sample - ray_origin;
@@ -85,10 +85,10 @@ public:
         return Ray(ray_origin, ray_direction);
     }
 
-    __device__ vec3 pixel_sample_square(curandState* state) const {
+    __device__ vec3 pixel_sample_square() const {
         // Returns a random point in the square surrounding a pixel at the origin.
-        auto px = -0.5 + random_double(state);
-        auto py = -0.5 + random_double(state);
+        auto px = -0.5 + random_double();
+        auto py = -0.5 + random_double();
         return (px * pixel_delta_u) + (py * pixel_delta_v);
     }
 
