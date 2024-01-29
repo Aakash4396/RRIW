@@ -32,7 +32,7 @@ void write_color(unsigned char* image, int col, int row, int width, color pixel_
     // Write the translated [0,255] value of each color component.
     static const interval intensity(0.000, 0.999);
 
-    fout << int(256 * intensity.clamp(r)) << " " << int(256 * intensity.clamp(g)) << " " << int(256 * intensity.clamp(b)) << fflush;
+    //fout << int(256 * intensity.clamp(r)) << " " << int(256 * intensity.clamp(g)) << " " << int(256 * intensity.clamp(b)) << fflush;
     image[(col * width + row) * 4 + 0] = static_cast<unsigned char>(256 * intensity.clamp(r));
     image[(col * width + row) * 4 + 1] = static_cast<unsigned char>(256 * intensity.clamp(g));
     image[(col * width + row) * 4 + 2] = static_cast<unsigned char>(256 * intensity.clamp(b));
