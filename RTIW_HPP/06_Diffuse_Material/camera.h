@@ -16,8 +16,8 @@ public:
     point pixel00_loc;
     vec3 pixel_delta_u;
     vec3 pixel_delta_v;
-    int samples_per_pixel = 10;
-    int max_depth = 10;
+    int samples_per_pixel = 100;
+    int max_depth = 50;
     camera(int _width, int _height) : width(_width), height(_height) {
     }
     ~camera() {
@@ -103,12 +103,12 @@ public:
             if (world->hit(current_ray, interval(0.001, 10000000.0), rec)) {
                 vec3 direction = rec.normal + random_unit_vector();
                 current_ray = Ray(rec.p, direction);
-                result *= 0.5;
+                result *= 0.5f;
             } else {
                 vec3 unit_direction = unit_vector(current_ray.direction());
                 auto a = 0.5f * (unit_direction.y() + 1.0f);
-                result = (1.0f - a) * color(1.0f, 1.0f, 1.0f) + a * color(0.5f, 0.7f, 1.0f);
-                break;  // Exit the loop when the ray misses the scene
+                result *= (1.0f - a) * color(1.0f, 1.0f, 1.0f) + a * color(0.5f, 0.7f, 1.0f);
+                break;  // Break out of the loop since there's no more intersection.
             }
         }
         return result;

@@ -14,10 +14,12 @@ __device__ double random_double(double min, double max) {
 }
 
 __device__ vec3 random_in_unit_sphere() {
-    auto p = vec3(random_double(-1,1), random_double(-1,1), random_double(-1,1));
-    if (p.length_squared() < 1)
-        return p;
-    return vec3(0.0, 0.0, 0.0);
+    while (true) {
+        auto p = vec3(random_double(-1,1), random_double(-1,1), random_double(-1,1));
+        if (p.length_squared() < 1) {
+            return p;
+        }
+    }
 }
 
 __device__ vec3 random_unit_vector() {

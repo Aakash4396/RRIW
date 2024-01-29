@@ -59,7 +59,7 @@ void CudaWrapper::cudaMain(unsigned char* image, int width, int height) {
 
     cam.samples_per_pixel = 100;
 
-    cam.max_depth = 10;
+    cam.max_depth = 50;
 
     cam.createImage(image, d_world);
     
