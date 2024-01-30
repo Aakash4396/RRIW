@@ -5,7 +5,7 @@
 #include "rtiw.h"
 
 #include "color.h"
-#include "hittable.h"
+#include "hittable_list.h"
 
 #include <iostream>
 
@@ -21,7 +21,7 @@ public:
         image = nullptr;
     }
 
-    unsigned char* createImage(hittable& world) {
+    unsigned char* createImage(hittable_list& world) {
         initialize();
 
         // fout << "P3\n" << width << " " << height << "\n255\n";
@@ -75,7 +75,7 @@ private:
 
     Ray get_ray(int i, int j) const {
         // Get a randomly sampled camera ray for the pixel at location i,j.
-
+        
         auto pixel_center = pixel00_loc + (i * pixel_delta_u) + (j * pixel_delta_v);
         auto pixel_sample = pixel_center + pixel_sample_square();
 
@@ -92,12 +92,11 @@ private:
         return (px * pixel_delta_u) + (py * pixel_delta_v);
     }
 
-    color ray_color(const Ray& r, hittable& world) {
+    color ray_color(const Ray& r, hittable_list& world) {
         hit_record rec;
-        if (world.hit(r, interval(0, infinity), rec)) {
+        if (world.hit(r, interval(0, 10000000.0), rec)) {
             return 0.5f * (rec.normal + color(1, 1, 1));
         }
-
         vec3 unit_direction = unit_vector(r.direction());
         auto a = 0.5f * (unit_direction.y() + 1.0f);
         return (1.0f - a) * color(1.0f, 1.0f, 1.0f) + a * color(0.5f, 0.7f, 1.0f);

@@ -14,9 +14,9 @@ int main() {
     // World
 
     hittable_list world;
-
-    world.add(new sphere(point(0.0f, 0.0f, -1.0f), 0.5f));
-    world.add(new sphere(point(0.0f, -100.5f, -1.0f), 100.0f));
+    
+    world.add(sphere(point(0.0f, 0.0f, -1.0f), 0.5f));
+    world.add(sphere(point(0.0f, -100.5f, -1.0f), 100.0f));
 
     auto aspect_ratio = 16.0 / 9.0;
     int width = 800;

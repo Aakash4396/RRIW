@@ -19,15 +19,16 @@ template<class T,int incr = 20>
 class PStash {
   int quantity;
   int next;
-  T* storage;
+  T** storage;
   void inflate(int increase = incr);
  public:
   PStash() : quantity(0), storage(0), next(0) {}
 
   ~PStash();
 
-  int add(T element);
-  T operator[](int index) const;
+  int add(T* element);
+  T* operator[](int index) const;
+  T* remove(int index);
   int count() const { return next; }
   
   class iterator {
@@ -82,17 +83,22 @@ class PStash {
       return ret;
     }
 
-    T current () const {
+    T* current () const {
       return p.storage[index];
     }
 
-    T operator*() {
+    T* operator*() {
       return current();
     }
     
-    T operator->() {
+    T* operator->() {
       require(p.storage[index] != 0,"PStash::iterator::operator->returns 0");
       return current();
+    }
+
+    // Remove the current element:
+    T* remove(){
+      return p.remove(index);
     }
 
     bool operator==(const iterator& rv) const {
@@ -116,7 +122,7 @@ class PStash {
 
 
 template<class T, int incr>
-int PStash<T,incr>::add(T element) {
+int PStash<T,incr>::add(T* element) {
   if(next >= quantity)
     inflate(incr);
   storage[next++] = element;
@@ -127,14 +133,14 @@ int PStash<T,incr>::add(T element) {
 template<class T, int incr>
 PStash<T, incr>::~PStash() {
   for(int i = 0; i < next; i++) {
-    ///delete storage[i];
-    //storage[i] = 0;
+    delete storage[i];
+    storage[i] = 0;
   }
   delete []storage;
 }
 
 template<class T,int incr>
-T PStash<T,incr>::operator[](int index) const {
+T* PStash<T,incr>::operator[](int index) const {
   require(index >= 0,"negative index");
   if(index >= next) {
     return 0;
@@ -143,11 +149,18 @@ T PStash<T,incr>::operator[](int index) const {
   return storage[index];
 }
 
+template<class T, int incr>
+T* PStash<T,incr>::remove(int index) {
+  T* v = operator[](index);
+  if(v != 0)
+    storage[index] = 0;
+  return v;
+}
 
 template<class T, int incr>
 void PStash<T,incr>::inflate(int increase) {
-  const int psz = sizeof(T);
-  T* st = new T[quantity + increase];
+  const int psz = sizeof(T*);
+  T** st = new T*[quantity + increase];
   memset(st,0,(quantity + increase) * psz);
   memcpy(st,storage,(quantity) * psz);
   quantity += increase;

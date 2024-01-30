@@ -6,23 +6,13 @@
 #include <fstream>
 #include <string>
 
-inline void require(bool requirement, const std::string& msg = "Requirement failed") {
-  using namespace std;
-  if(!requirement) {
-    fputs(msg.c_str(),stderr);
-    fputs("\n",stderr);
-    exit(1);
-  }
-}
-
 template<class T,int incr = 20>
 class PStash {
   int quantity;
   int next;
-  T* storage;
-  void inflate(int increase = incr);
+  T storage[incr];
  public:
-  PStash() : quantity(0), storage(0), next(0) {}
+  PStash() : quantity(0), next(0) {}
 
   ~PStash();
 
@@ -46,7 +36,7 @@ class PStash {
     }
 
     iterator& operator++() {  //prefix
-      require(++index <= p.next,"Index out of bound");
+      //require(++index <= p.next,"Index out of bound");
       return *this;
     }
 
@@ -56,7 +46,7 @@ class PStash {
 
 
     iterator& operator--() {  //prefix
-      require(--index >= 0,"Index out of bound");
+      //require(--index >= 0,"Index out of bound");
       return *this;
     }
 
@@ -65,13 +55,13 @@ class PStash {
     }
     
     iterator& operator+=(int amount) {
-      require(index+amount < p.next && index+amount >= 0,"Index out of bound");
+      //require(index+amount < p.next && index+amount >= 0,"Index out of bound");
       index += amount;
       return *this;
     }
     
     iterator& operator-=(int amount) {
-      require(index-amount < p.next && index - amount >= 0,"Index out of bound");
+      //require(index-amount < p.next && index - amount >= 0,"Index out of bound");
       index -= amount;
       return *this;
     }
@@ -91,7 +81,7 @@ class PStash {
     }
     
     T operator->() {
-      require(p.storage[index] != 0,"PStash::iterator::operator->returns 0");
+      //require(p.storage[index] != 0,"PStash::iterator::operator->returns 0");
       return current();
     }
 
@@ -117,8 +107,6 @@ class PStash {
 
 template<class T, int incr>
 int PStash<T,incr>::add(T element) {
-  if(next >= quantity)
-    inflate(incr);
   storage[next++] = element;
   return (next-1);
 }
@@ -130,29 +118,17 @@ PStash<T, incr>::~PStash() {
     ///delete storage[i];
     //storage[i] = 0;
   }
-  delete []storage;
+  //delete []storage;
 }
 
 template<class T,int incr>
 T PStash<T,incr>::operator[](int index) const {
-  require(index >= 0,"negative index");
+  //require(index >= 0,"negative index");
   if(index >= next) {
     return 0;
   }
-  require(storage[index] != 0, "No element at this record");
+  //require(storage[index] != 0, "No element at this record");
   return storage[index];
-}
-
-
-template<class T, int incr>
-void PStash<T,incr>::inflate(int increase) {
-  const int psz = sizeof(T);
-  T* st = new T[quantity + increase];
-  memset(st,0,(quantity + increase) * psz);
-  memcpy(st,storage,(quantity) * psz);
-  quantity += increase;
-  delete []storage;
-  storage = st;
 }
 
 
