@@ -4,10 +4,7 @@
 
 class interval {
 public:
-    double infinity = 10000000.0;
     double imin, imax;
-
-    __host__ __device__ interval() : imin(+infinity), imax(-infinity) {} // Default interval is empty
 
     __host__ __device__ interval(double _min, double _max) : imin(_min), imax(_max) {}
 

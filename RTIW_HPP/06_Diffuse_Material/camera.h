@@ -23,36 +23,7 @@ public:
     ~camera() {
     }
 
-    void createImage(unsigned char* image, hittable_list* world) {
-        initialize();
-
-        unsigned char * d_image;
-        gpuErrchk(cudaMalloc((void**)&d_image, width*height*4*sizeof(char)), "Failed to allocate memory to image.");
-
-        camera* d_cam;
-        gpuErrchk(cudaMalloc((void**)&d_cam, sizeof(camera)), "Failed to allocate memory to cam.");
-        gpuErrchk(cudaMemcpy(d_cam, this, sizeof(camera), cudaMemcpyHostToDevice), "Failed to copy camera data from host to device.");
-
-
-        // Define thread block size (e.g., 16x16)
-        dim3 blockDim = dim3(16, 16);
-
-        // Define grid size
-        dim3 gridDim = dim3((width + blockDim.x - 1) / blockDim.x, (height + blockDim.y - 1) / blockDim.y);
-
-        CudaWrapper::cudaKernel(gridDim, blockDim, d_image, width, height, d_cam, world, max_depth, samples_per_pixel);
-
-        gpuErrchk( cudaPeekAtLastError(), "Error while launching kernel.");
-        gpuErrchk( cudaDeviceSynchronize(), "Device Synchronization.");
-
-        gpuErrchk(cudaMemcpy(image, d_image, width*height*4*sizeof(char), cudaMemcpyDeviceToHost), "Failed to get image data from device to host.");
-
-        gpuErrchk(cudaFree(d_image), "Failed to free image data on device.");
-        gpuErrchk(cudaFree(d_cam), "Failed to free camera data on device.");
-        
-    }
-
-    __host__ __device__ void initialize() {
+    void setup() {
 
         // Camera
 
@@ -93,14 +64,14 @@ public:
         return (px * pixel_delta_u) + (py * pixel_delta_v);
     }
 
-    __device__ color ray_color(const Ray& r, int max_depth, hittable_list* world) {
+    __device__ color ray_color(const Ray& r, int max_depth, hittable_list** world) {
         color result(1.0f, 1.0f, 1.0f);
         Ray current_ray = r;
 
         for (int depth = max_depth; depth > 0; --depth) {
             hit_record rec;
 
-            if (world->hit(current_ray, interval(0.001, 10000000.0), rec)) {
+            if ((*world)->hit(current_ray, interval(0.001, FLT_MAX), rec)) {
                 vec3 direction = rec.normal + random_unit_vector();
                 current_ray = Ray(rec.p, direction);
                 result *= 0.5f;

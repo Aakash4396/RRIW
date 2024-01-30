@@ -16,12 +16,8 @@
 
 __device__ curandState threadRandomStates[TOTAL_THREADS];
 
-class vec3;
-class camera;
-class hittable_list;
 namespace CudaWrapper {
-    void cudaKernel(dim3, dim3, unsigned char*, int, int, camera*, hittable_list*, int, int);
-    void cudaMain(unsigned char*, int, int);
+   void cudaMain(unsigned char*, int, int);
 }
 
 #define gpuErrchk(ans, msg) { gpuAssert((ans), __FILE__, __LINE__, (msg)); }
