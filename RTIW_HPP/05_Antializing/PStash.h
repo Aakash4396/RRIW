@@ -12,11 +12,11 @@ class PStash {
   int next;
   T storage[incr];
  public:
-  PStash() : quantity(0), next(0) {}
+  __host__ __device__ PStash() : quantity(0), next(0) {}
 
-  int add(T element);
-  T operator[](int index) const;
-  int count() const { return next; }
+  __host__ __device__ int add(T element);
+  __host__ __device__ T operator[](int index) const;
+  __host__ __device__ int count() const { return next; }
   
   class iterator {
     PStash& p; 
@@ -101,14 +101,14 @@ class PStash {
 
 
 template<class T, int incr>
-int PStash<T,incr>::add(T element) {
+__host__ __device__ int PStash<T,incr>::add(T element) {
   storage[next++] = element;
   return (next-1);
 }
 
 
 template<class T,int incr>
-T PStash<T,incr>::operator[](int index) const {
+__host__ __device__ T PStash<T,incr>::operator[](int index) const {
   if(index >= next) {
     return 0;
   }
