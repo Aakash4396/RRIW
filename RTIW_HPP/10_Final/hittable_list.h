@@ -7,7 +7,7 @@
 
 class hittable_list {
 public:
-    PStash<hittable *> objects;
+    PStash<hittable, 625> objects;
     
     __device__ hittable_list() {}
     __device__ hittable_list(hittable* object) { add(object); }
