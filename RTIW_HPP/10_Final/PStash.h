@@ -8,9 +8,9 @@
 
 __host__ __device__ void require(bool requirement, const char* msg = "Requirement failed") {
     if(!requirement) {
-        fprintf(stderr, msg);
-        fprintf(stderr, "\n");
-        exit(1);
+        printf(msg);
+        printf("\n");
+        //exit(1);
     }
 }
 
@@ -19,8 +19,8 @@ class PStash {
     int quantity;
     int next;
     T** storage;
-    void inflate(int increase = incr);
-    public:
+    __host__ __device__ void inflate(int increase = incr);
+public:
     __host__ __device__ PStash() : quantity(0), storage(0), next(0) {}
 
     __host__ __device__ ~PStash();
