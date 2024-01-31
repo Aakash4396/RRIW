@@ -94,11 +94,6 @@ class PStash {
             return current();
         }
 
-        // Remove the current element:
-        T* remove(){
-            return p.remove(index);
-        }
-
         bool operator==(const iterator& rv) const {
             return index == rv.index;
         }
