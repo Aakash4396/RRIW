@@ -8,12 +8,12 @@
 
 class hittable_list {
 public:
-    PStash<sphere> objects;
+    PStash<hittable> objects;
 
     hittable_list() {}
-    hittable_list(sphere object) { add(object); }
+    hittable_list(hittable* object) { add(object); }
     
-    void add(sphere object) {
+    void add(hittable* object) {
         objects.add(object);
     }
 
@@ -23,7 +23,7 @@ public:
         auto closest_so_far = ray_t.imax;
         
         for (auto object : objects) {
-            if (object.hit(r, interval(ray_t.imin, closest_so_far), temp_rec)) {
+            if (object->hit(r, interval(ray_t.imin, closest_so_far), temp_rec)) {
                 hit_anything = true;
                 closest_so_far = temp_rec.t;
                 rec = temp_rec;

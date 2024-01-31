@@ -5,7 +5,7 @@
 #include "hittable.h"
 #include "vec3.h"
 
-class sphere {
+class sphere : public hittable {
 private:
     point center;
     double radius;
@@ -13,7 +13,7 @@ public:
     sphere() {}
     sphere(point _center, double _radius) : center(_center), radius(_radius) {}
 
-    bool hit(const Ray& r, interval ray_t, hit_record& rec) {
+    bool hit(const Ray& r, interval ray_t, hit_record& rec) const override {
         
         vec3 oc = r.origin() - center;
         auto a = r.direction().length_squared();
