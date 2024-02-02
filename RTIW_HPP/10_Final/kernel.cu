@@ -123,11 +123,11 @@ void CudaWrapper::cudaMain(unsigned char* image, int width, int height) {
     cam.samples_per_pixel = 500;
     cam.max_depth = 50;
     cam.vfov = 30;
-    cam.lookfrom = point(3, 32, 3);
+    cam.lookfrom = point(13, 2, 3);
     cam.lookat = point(0, 0, 0);
     cam.vup = vec3(0, 1, 0);
     cam.defocus_angle = 0.6;
-    cam.focus_dist = 30.0;
+    cam.focus_dist = 10.0;
     cam.setup();
 
     camera* d_cam;
