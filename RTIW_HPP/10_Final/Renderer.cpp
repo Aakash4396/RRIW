@@ -225,7 +225,7 @@ void Renderer::Render() {
 
 void Renderer::drawImage(unsigned char* image) {
 
-    glGenTextures(1, &textureID);	// gen texture and get id in tecture_checkerboard variable
+    glGenTextures(1, &textureID);	// gen texture and get id in a variable
     glBindTexture(GL_TEXTURE_2D, textureID);
 
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width_, height_, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
