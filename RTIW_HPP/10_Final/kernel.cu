@@ -9,8 +9,11 @@
 #include "material.h"
 #include "camera.h"
 #include "sphere.h"
+#include "helper_timer.h"
 
 #define RND (curand_uniform_double(&local_rand_state))
+
+float timeOnGPU = 0.0f;
 
 __global__ void init_world(hittable_list** d_world, curandState *rand_state) {
     if (threadIdx.x == 0 && blockIdx.x == 0) {
@@ -97,17 +100,20 @@ void CudaWrapper::cudaMain(unsigned char* image, int width, int height) {
 
     unsigned int seed = static_cast<unsigned int>(std::time(0));
     
+
     rand_init<<<1,1>>>(d_rand_state2, seed);
-    gpuErrchk( cudaPeekAtLastError(), "Error while launching kernel.");
+    gpuErrchk( cudaPeekAtLastError(), "Error while initialting random numbers.");
     gpuErrchk( cudaDeviceSynchronize(), "Device Synchronization rand_init.");
 
     init_world<<<1, 1>>>(d_world, d_rand_state2);
-    gpuErrchk( cudaPeekAtLastError(), "Error while launching kernel.");
+    gpuErrchk( cudaPeekAtLastError(), "Error while initiating world object.");
     gpuErrchk( cudaDeviceSynchronize(), "Device Synchronization init_world.");
     
     seed = static_cast<unsigned int>(std::time(0));
     
     setupRandomStates<<<GRIDDIM, BLOCKDIM>>>(seed);
+    gpuErrchk( cudaPeekAtLastError(), "Error while setting random states for all threads.");
+    gpuErrchk( cudaDeviceSynchronize(), "Device Synchronization setting random states.");
 
     unsigned char * d_image;
     gpuErrchk(cudaMalloc((void**)&d_image, width*height*4*sizeof(char)), "Failed to allocate memory to image.");
@@ -116,22 +122,33 @@ void CudaWrapper::cudaMain(unsigned char* image, int width, int height) {
     camera cam(width, height);
     cam.samples_per_pixel = 500;
     cam.max_depth = 50;
-    cam.vfov = 20;
-    cam.lookfrom = point(13, 2, 3);
+    cam.vfov = 30;
+    cam.lookfrom = point(3, 32, 3);
     cam.lookat = point(0, 0, 0);
     cam.vup = vec3(0, 1, 0);
     cam.defocus_angle = 0.6;
-    cam.focus_dist = 10.0;
+    cam.focus_dist = 30.0;
     cam.setup();
 
     camera* d_cam;
     gpuErrchk(cudaMalloc((void**)&d_cam, sizeof(camera)), "Failed to allocate memory to cam.");
     gpuErrchk(cudaMemcpy(d_cam, &cam, sizeof(camera), cudaMemcpyHostToDevice), "Failed to copy camera data from host to device.");
 
+    StopWatchInterface* timer = NULL;
+	sdkCreateTimer(&timer);
+	sdkStartTimer(&timer);
 
     createImage<<<GRIDDIM, BLOCKDIM>>>(d_image, width, height, d_cam, d_world, cam.max_depth, cam.samples_per_pixel);
+
     gpuErrchk( cudaPeekAtLastError(), "Error while launching kernel.");
-    gpuErrchk( cudaDeviceSynchronize(), "Device Synchronization.");
+    gpuErrchk( cudaDeviceSynchronize(), "Device Synchronization create image.");
+    
+    sdkStopTimer(&timer);
+	timeOnGPU = sdkGetTimerValue(&timer);
+	sdkDeleteTimer(&timer);
+	timer = NULL;
+    
+    std::cerr << "Took " << timeOnGPU / CLOCKS_PER_SEC << " seconds to create image.\n";
 
     gpuErrchk(cudaMemcpy(image, d_image, width*height*4*sizeof(char), cudaMemcpyDeviceToHost), "Failed to get image data from device to host.");
 
